@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Real-time Consumption Graph</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/3.0.4/socket.io.js" integrity="sha512-aMGMvNYu8Ue4G+fHa359jcPb1u+ytAF+P2SCb+PxrjCdO3n3ZTxJ30zuH39rimUggmTwmh2u7wvQsDTHESnmfQ==" crossorigin="anonymous"></script>
+
+</head>
+<body>
+    <h1>Real-time Consumption Graph</h1>
+    <canvas id="chart"></canvas>
+
+    <script>
+        var ctx = document.getElementById('chart').getContext('2d');
+        var chart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: [],
+                datasets: [{
+                    label: 'Consumption',
+                    data: [],
+                    backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1,
+                    fill: 'origin'
+                }]
+            },
+            options: {
+                responsive: true,
+                title: {
+                    display: true,
+                    text: 'Real-time Consumption'
+                },
+                scales: {
+                    x: {
+                        display: true
+                    },
+                    y: {
+                        display: true,
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // const socket = new WebSocket('ws://localhost:8000');
+        var socket = io.connect();
+
+        socket.on('consumption',function(event) {
+            // var message = JSON.parse(event.consumption);
+            var time = new Date().toLocaleTimeString();
+            var consumption = parseFloat(event.consumption);
+
+            // Add new data point to the chart
+            chart.data.labels.push(time);
+            chart.data.datasets[0].data.push(consumption);
+            chart.update();
+        });
+    </script>
+</body>
+</html>
